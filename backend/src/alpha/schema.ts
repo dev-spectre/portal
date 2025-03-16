@@ -26,9 +26,19 @@ const facultySignin = z.object({
   password: passwordSchema,
 });
 
+const classCreation = z.object({
+  name: z.string().trim().min(1, "Class name should have at least one character"),
+  inchargeId: z.number().int("Incharge id should be a integer"),
+});
+
 const schema = {
-  facultySignup,
-  facultySignin,
+  class: {
+    create: classCreation,
+  },
+  faculty: {
+    signin: facultySignin,
+    signup: facultySignup,
+  },
 };
 
 export default schema;

@@ -5,13 +5,14 @@ import { PrismaClient } from "@prisma/client";
 import { comparePassword, hashPassword } from "../utils/auth.js";
 import { STATUS_CODES, THREE_MONTHS_IN_SECONDS } from "../constants.js";
 import schema from "./schema.js";
+import { setSignedCookie } from "hono/cookie";
 
 const auth = new Hono();
 const prisma = new PrismaClient();
 
 auth.post("signup/", async (c) => {
   const body = await c.req.json();
-  const parsed = schema.facultySignup.safeParse(body);
+  const parsed = schema.faculty.signup.safeParse(body);
 
   if (!parsed.success) {
     c.status(STATUS_CODES.BAD_REQUEST);
@@ -78,7 +79,7 @@ auth.post("signup/", async (c) => {
 
 auth.post("signin/faculty", async (c) => {
   const body = await c.req.json();
-  const parsed = schema.facultySignin.safeParse(body);
+  const parsed = schema.faculty.signin.safeParse(body);
 
   if (!parsed.success) {
     c.status(STATUS_CODES.BAD_REQUEST);
