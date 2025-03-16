@@ -12,7 +12,7 @@ alpha.use(async (c, next) => {
     } catch (e) {
       c.status(STATUS_CODES.BAD_REQUEST);
       return c.json({
-        err: "Invalid body type",
+        err: "Invalid JSON format in payload",
       });
     }
   }
