@@ -22,4 +22,11 @@ alpha.use(async (c, next) => {
 
 alpha.route("auth/", auth);
 
+alpha.notFound((c) => {
+  c.status(STATUS_CODES.NOT_FOUND);
+  return c.json({
+    err: "Route not found",
+  });
+});
+
 export default alpha;
