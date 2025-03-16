@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import { sign } from "hono/jwt";
 import { env } from "hono/adapter";
 import { PrismaClient } from "@prisma/client";
-import { comparePassword, hashPassword } from "../utils/auth.js";
-import { STATUS_CODES, THREE_MONTHS_IN_SECONDS } from "../constants.js";
-import schema from "./schema.js";
+import { comparePassword, hashPassword } from "../../utils/auth.js";
+import { STATUS_CODES, THREE_MONTHS_IN_SECONDS } from "../../constants.js";
+import schema from "../schema.js";
 import { setSignedCookie } from "hono/cookie";
 
 const auth = new Hono();
@@ -77,7 +77,7 @@ auth.post("signup/", async (c) => {
   }
 });
 
-auth.post("signin/faculty", async (c) => {
+auth.post("signin/", async (c) => {
   const body = await c.req.json();
   const parsed = schema.faculty.signin.safeParse(body);
 

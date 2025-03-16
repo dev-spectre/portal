@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { STATUS_CODES } from "../constants.js";
-import schema from "./schema.js";
+import { STATUS_CODES } from "../../constants.js";
+import schema from "../schema.js";
 import { deleteCookie, getSignedCookie } from "hono/cookie";
 import { env } from "hono/adapter";
 import { decode } from "hono/jwt";
@@ -55,7 +55,6 @@ classRoute.post("create/", async (c) => {
     return c.json({
       ...classObject,
     });
-    
   } catch (e) {
     c.status(STATUS_CODES.SERVICE_UNVAILABLE);
     return c.json({

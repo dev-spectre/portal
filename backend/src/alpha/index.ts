@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { STATUS_CODES } from "../constants.js";
-import auth from "./auth.js";
-import classRoute from "./class.js";
+import facultyRouter from "./faculty/index.js";
+import classRouter from "./class/index.js";
 
 const alpha = new Hono();
 
@@ -21,9 +21,9 @@ alpha.use(async (c, next) => {
   await next();
 });
 
-alpha.route("auth/", auth);
+alpha.route("faculty/", facultyRouter);
 
-alpha.route("class/", classRoute);
+alpha.route("class/", classRouter);
 
 alpha.notFound((c) => {
   c.status(STATUS_CODES.NOT_FOUND);
