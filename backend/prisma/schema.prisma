@@ -23,18 +23,20 @@ model Faculty {
 }
 
 model Student {
-  id       Int        @id @default(autoincrement())
-  reg      Int        @unique
-  password String
-  Absentee Absentee[]
+  id         Int        @id @default(autoincrement())
+  reg        Int        @unique
+  password   String
+  isIncharge Boolean    @default(false)
+  Absentee   Absentee[]
 }
 
 model Class {
-  id         Int        @id @default(autoincrement())
-  name       String
-  incharge   Faculty    @relation(fields: [inchargeId], references: [id])
-  inchargeId Int
-  Absentee   Absentee[]
+  id             Int              @id @default(autoincrement())
+  name           String
+  incharge       Faculty          @relation(fields: [inchargeId], references: [id])
+  inchargeId     Int
+  Absentee       Absentee[]
+  DocumentAccess DocumentAccess[]
 }
 
 model Absentee {
@@ -47,22 +49,21 @@ model Absentee {
 }
 
 model Document {
-  id          Int      @id @default(autoincrement())
-  source      String
-  name        String
-  description String?
-  author      Faculty  @relation(fields: [authorId], references: [id])
-  authorId    Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             Int              @id @default(autoincrement())
+  source         String
+  name           String
+  description    String?
+  author         Faculty          @relation(fields: [authorId], references: [id])
+  authorId       Int
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  DocumentAccess DocumentAccess[]
 }
 
-enum Department {
-  ANY
-  AIDS
-  CSE
-  ECE
-  EEE
-  IT
-  MECH
+model DocumentAccess {
+  id         Int      @id @default(autoincrement())
+  document   Document @relation(fields: [documentId], references: [id])
+  documentId Int
+  class      Class    @relation(fields: [classId], references: [id])
+  classId    Int
 }
