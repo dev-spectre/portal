@@ -24,7 +24,7 @@ model Faculty {
 
 model Student {
   id             Int           @id @default(autoincrement())
-  registerNumber Int           @unique
+  registerNumber String        @unique
   password       String
   isIncharge     Boolean       @default(false)
   Absentee       Absentee[]
@@ -46,7 +46,9 @@ model ClassMember {
   class          Class   @relation(fields: [classId], references: [id])
   classId        Int
   student        Student @relation(fields: [registerNumber], references: [registerNumber])
-  registerNumber Int
+  registerNumber String
+
+  @@unique([classId, registerNumber])
 }
 
 model Absentee {

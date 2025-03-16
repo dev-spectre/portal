@@ -31,13 +31,32 @@ const classCreation = z.object({
   inchargeId: z.number().int("Incharge id should be a integer"),
 });
 
+const registerNumber = z.string().trim().min(1, "Register number shouldn't be empty");
+
+const studentSignup = z.array(
+  z.object({
+    registerNumber,
+    isIncharge: z.boolean().optional(),
+  })
+);
+
+const addStudentToClass = z.object({
+  registerNumber: z.array(registerNumber).min(1),
+  classId: z.number().int(),
+});
+
 const schema = {
+  password: passwordSchema,
   class: {
     create: classCreation,
+    addStudent: addStudentToClass,
   },
   faculty: {
     signin: facultySignin,
     signup: facultySignup,
+  },
+  student: {
+    signup: studentSignup,
   },
 };
 
