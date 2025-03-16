@@ -23,11 +23,12 @@ model Faculty {
 }
 
 model Student {
-  id         Int        @id @default(autoincrement())
-  reg        Int        @unique
-  password   String
-  isIncharge Boolean    @default(false)
-  Absentee   Absentee[]
+  id          Int           @id @default(autoincrement())
+  reg         Int           @unique
+  password    String
+  isIncharge  Boolean       @default(false)
+  Absentee    Absentee[]
+  ClassMember ClassMember[]
 }
 
 model Class {
@@ -37,6 +38,15 @@ model Class {
   inchargeId     Int
   Absentee       Absentee[]
   DocumentAccess DocumentAccess[]
+  ClassMember    ClassMember[]
+}
+
+model ClassMember {
+  id        Int     @id @default(autoincrement())
+  class     Class   @relation(fields: [classId], references: [id])
+  classId   Int
+  student   Student @relation(fields: [studentId], references: [id])
+  studentId Int
 }
 
 model Absentee {
