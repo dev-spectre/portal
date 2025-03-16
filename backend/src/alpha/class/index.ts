@@ -1,15 +1,18 @@
 import { Hono } from "hono";
 import { STATUS_CODES } from "../../constants.js";
 import schema from "../schema.js";
-import { deleteCookie, getSignedCookie } from "hono/cookie";
+import { getSignedCookie } from "hono/cookie";
 import { env } from "hono/adapter";
 import { decode } from "hono/jwt";
 import { PrismaClient } from "@prisma/client";
+import { verifyAuthToken } from "../../middleware/auth.js";
 
-const classRoute = new Hono();
+const classRouter = new Hono();
 const prisma = new PrismaClient();
 
-classRoute.post("create/", async (c) => {
+classRouter.use("*", verifyAuthToken);
+
+classRouter.post("create/", async (c) => {
   const body = await c.req.json();
   const parsed = schema.class.create.safeParse(body);
 
@@ -23,23 +26,11 @@ classRoute.post("create/", async (c) => {
 
   const { JWT_KEY } = env<{ JWT_KEY: string }>(c);
   const cookie = await getSignedCookie(c, JWT_KEY);
-
-  if (!cookie.jwt) {
-    deleteCookie(c, "jwt", {
-      httpOnly: true,
-      sameSite: "strict",
-    });
-    c.status(STATUS_CODES.FORBIDDEN);
-    return c.json({
-      err: "Unauthorized",
-    });
-  }
-
-  const jwtPayload = decode(cookie.jwt).payload;
+  const jwtPayload = decode(cookie.jwt || "").payload;
   if (jwtPayload.role !== "Faculty" || jwtPayload.id !== parsed.data.inchargeId) {
     c.status(STATUS_CODES.FORBIDDEN);
     return c.json({
-      err: "Unauthorized",
+      err: "Forbidden, user lacks authorization",
     });
   }
 
@@ -63,4 +54,4 @@ classRoute.post("create/", async (c) => {
   }
 });
 
-export default classRoute;
+export default classRouter;

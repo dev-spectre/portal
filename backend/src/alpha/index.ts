@@ -2,8 +2,11 @@ import { Hono } from "hono";
 import { STATUS_CODES } from "../constants.js";
 import facultyRouter from "./faculty/index.js";
 import classRouter from "./class/index.js";
+import { cors } from "hono/cors";
 
 const alpha = new Hono();
+
+alpha.use("*", cors());
 
 alpha.use(async (c, next) => {
   const methodsWithJsonBody = ["POST", "PUT", "DELETE"];
