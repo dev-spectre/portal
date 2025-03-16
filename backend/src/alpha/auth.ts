@@ -111,18 +111,25 @@ auth.post("signin/faculty", async (c) => {
         });
       }
 
+      const maxAge = Math.floor(Date.now() / 1000) + THREE_MONTHS_IN_SECONDS;
       const jwtPayload = {
         id: user.id,
         username: user.name,
         role: "Faculty",
-        exp: Math.floor(Date.now() / 1000) + THREE_MONTHS_IN_SECONDS,
+        exp: maxAge,
       };
 
       const { JWT_KEY } = env<{ JWT_KEY: string }>(c);
       const jwt = await sign(jwtPayload, JWT_KEY);
+      const expDate = new Date();
+      expDate.setMonth(expDate.getMonth() + 3);
+      await setSignedCookie(c, "jwt", jwt, JWT_KEY, {
+        httpOnly: true,
+        expires: expDate,
+        sameSite: "strict",
+      });
       c.status(STATUS_CODES.CREATED);
       return c.json({
-        jwt,
         id: user.id,
         username: user.name,
       });
