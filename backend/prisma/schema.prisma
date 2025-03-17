@@ -27,7 +27,7 @@ model Student {
   registerNumber String        @unique
   password       String
   isIncharge     Boolean       @default(false)
-  Absentee       Absentee[]
+  Attendance     Attendance[]
   ClassMember    ClassMember[]
 }
 
@@ -36,9 +36,9 @@ model Class {
   name           String
   incharge       Faculty          @relation(fields: [inchargeId], references: [id])
   inchargeId     Int
-  Absentee       Absentee[]
   DocumentAccess DocumentAccess[]
   ClassMember    ClassMember[]
+  AttendanceMode AttendanceMode[]
 }
 
 model ClassMember {
@@ -51,13 +51,23 @@ model ClassMember {
   @@unique([classId, registerNumber])
 }
 
-model Absentee {
-  id        Int      @id @default(autoincrement())
-  date      DateTime
-  student   Student  @relation(fields: [studentId], references: [id])
-  studentId Int
-  class     Class    @relation(fields: [classId], references: [id])
-  classId   Int
+model AttendanceMode {
+  id         Int          @id @default(autoincrement())
+  class      Class        @relation(fields: [classId], references: [id])
+  classId    Int
+  date       DateTime
+  isPresent  Boolean
+  Attendance Attendance[]
+}
+
+model Attendance {
+  id               Int            @id @default(autoincrement())
+  student          Student        @relation(fields: [studentId], references: [id])
+  studentId        Int
+  attendanceMode   AttendanceMode @relation(fields: [attendanceModeId], references: [id])
+  attendanceModeId Int
+
+  @@unique([studentId, attendanceModeId])
 }
 
 model Document {

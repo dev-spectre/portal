@@ -45,11 +45,21 @@ const addStudentToClass = z.object({
   classId: z.number().int(),
 });
 
+const markClassAttendance = z.object({
+  classId: z.number().int(),
+  date: z.string().datetime(),
+  isPresent: z.boolean(),
+  studentId: z.array(z.number().int()).min(1),
+});
+
 const schema = {
   password: passwordSchema,
   class: {
     create: classCreation,
     addStudent: addStudentToClass,
+    attendance: {
+      add: markClassAttendance,
+    },
   },
   faculty: {
     signin: facultySignin,
