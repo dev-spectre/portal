@@ -15,58 +15,62 @@ const passwordSchema = z
   .max(16, "Password must not exceed 16 characters")
   .regex(/^(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[^\w\d\s:])([^\s]){8,16}$/, "Password must contain at least 1 number, uppercase and lowercase letters, and non alpha-numeric characters.");
 
-const facultySignup = z.object({
-  username: z.string().trim().min(1, "Username shouldn't be empty"),
-  email: emailSchema,
-  password: passwordSchema,
-});
-
-const facultySignin = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-});
-
-const classCreation = z.object({
-  name: z.string().trim().min(1, "Class name should have at least one character"),
-  inchargeId: z.number().int("Incharge id should be a integer"),
-});
-
 const registerNumber = z.string().trim().min(1, "Register number shouldn't be empty");
-
-const studentSignup = z.array(
-  z.object({
-    registerNumber,
-    isIncharge: z.boolean().optional(),
-  })
-);
-
-const addStudentToClass = z.object({
-  registerNumber: z.array(registerNumber).min(1),
-  classId: z.number().int(),
-});
-
-const markClassAttendance = z.object({
-  classId: z.number().int(),
-  date: z.string().datetime(),
-  isPresent: z.boolean(),
-  studentId: z.array(z.number().int()).min(1),
-});
 
 const schema = {
   password: passwordSchema,
   class: {
-    create: classCreation,
-    addStudent: addStudentToClass,
+    create: z.object({
+      name: z.string().trim().min(1, "Class name should have at least one character"),
+      inchargeId: z.number().int("Incharge id should be a integer"),
+    }),
+    addStudent: z.object({
+      registerNumber: z.array(registerNumber).min(1),
+      classId: z.number().int(),
+    }),
     attendance: {
-      add: markClassAttendance,
+      add: z.object({
+        classId: z.number().int(),
+        date: z.string().datetime(),
+        isPresent: z.boolean(),
+        studentId: z.array(z.number().int()).min(1),
+      }),
     },
   },
   faculty: {
-    signin: facultySignin,
-    signup: facultySignup,
+    signin: z.object({
+      email: emailSchema,
+      password: passwordSchema,
+    }),
+    signup: z.object({
+      username: z.string().trim().min(1, "Username shouldn't be empty"),
+      email: emailSchema,
+      password: passwordSchema,
+    }),
   },
   student: {
-    signup: studentSignup,
+    signup: z.array(
+      z.object({
+        registerNumber,
+        isIncharge: z.boolean().optional(),
+      })
+    ),
+  },
+  post: {
+    create: z.object({
+      title: z.string().trim().min(1, "Title should contain at least one character"),
+      description: z.string().trim().optional().nullable(),
+      documentSource: z.string().trim().url("Document source must be a URL").optional().nullable(),
+      authorId: z.number().int(),
+      classId: z.array(z.number().int()),
+    }),
+    update: z.object({
+      postId: z.number().int(),
+      title: z.string().trim().min(1, "Title should contain at least one character").optional(),
+      description: z.string().trim().optional().nullable(),
+      documentSource: z.string().trim().url("Document source must be a URL").optional().nullable(),
+      classId: z.array(z.number().int()).optional(),
+    }),
   },
 };
 

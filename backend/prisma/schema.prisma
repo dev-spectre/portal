@@ -14,11 +14,11 @@ datasource db {
 }
 
 model Faculty {
-  id       Int        @id @default(autoincrement())
-  email    String     @unique
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
   password String
   name     String
-  Document Document[]
+  Post     Post[]
   Class    Class[]
 }
 
@@ -34,18 +34,18 @@ model Student {
 model Class {
   id             Int              @id @default(autoincrement())
   name           String
-  incharge       Faculty          @relation(fields: [inchargeId], references: [id])
+  incharge       Faculty          @relation(fields: [inchargeId], references: [id], onDelete: Cascade)
   inchargeId     Int
-  DocumentAccess DocumentAccess[]
+  PostAccess     PostAccess[]
   ClassMember    ClassMember[]
   AttendanceMode AttendanceMode[]
 }
 
 model ClassMember {
   id             Int     @id @default(autoincrement())
-  class          Class   @relation(fields: [classId], references: [id])
+  class          Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
   classId        Int
-  student        Student @relation(fields: [registerNumber], references: [registerNumber])
+  student        Student @relation(fields: [registerNumber], references: [registerNumber], onDelete: Cascade)
   registerNumber String
 
   @@unique([classId, registerNumber])
@@ -53,7 +53,7 @@ model ClassMember {
 
 model AttendanceMode {
   id         Int          @id @default(autoincrement())
-  class      Class        @relation(fields: [classId], references: [id])
+  class      Class        @relation(fields: [classId], references: [id], onDelete: Cascade)
   classId    Int
   date       DateTime
   isPresent  Boolean
@@ -62,30 +62,30 @@ model AttendanceMode {
 
 model Attendance {
   id               Int            @id @default(autoincrement())
-  student          Student        @relation(fields: [studentId], references: [id])
+  student          Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
   studentId        Int
-  attendanceMode   AttendanceMode @relation(fields: [attendanceModeId], references: [id])
+  attendanceMode   AttendanceMode @relation(fields: [attendanceModeId], references: [id], onDelete: Cascade)
   attendanceModeId Int
 
   @@unique([studentId, attendanceModeId])
 }
 
-model Document {
-  id             Int              @id @default(autoincrement())
-  source         String
-  name           String
+model Post {
+  id             Int          @id @default(autoincrement())
+  documentSource String?
+  title          String
   description    String?
-  author         Faculty          @relation(fields: [authorId], references: [id])
+  author         Faculty      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId       Int
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  DocumentAccess DocumentAccess[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  PostAccess     PostAccess[]
 }
 
-model DocumentAccess {
-  id         Int      @id @default(autoincrement())
-  document   Document @relation(fields: [documentId], references: [id])
-  documentId Int
-  class      Class    @relation(fields: [classId], references: [id])
-  classId    Int
+model PostAccess {
+  id      Int   @id @default(autoincrement())
+  Post    Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId  Int
+  class   Class @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId Int
 }

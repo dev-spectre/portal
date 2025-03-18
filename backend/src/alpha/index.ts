@@ -3,13 +3,14 @@ import { STATUS_CODES } from "../constants.js";
 import facultyRouter from "./faculty/index.js";
 import classRouter from "./class/index.js";
 import { cors } from "hono/cors";
+import postRouter from "./post/index.js";
 
 const alpha = new Hono();
 
 alpha.use("*", cors());
 
 alpha.use(async (c, next) => {
-  const methodsWithJsonBody = ["POST", "PUT", "DELETE"];
+  const methodsWithJsonBody = ["POST", "PUT"];
   if (methodsWithJsonBody.includes(c.req.method)) {
     try {
       await c.req.json();
@@ -27,6 +28,8 @@ alpha.use(async (c, next) => {
 alpha.route("faculty/", facultyRouter);
 
 alpha.route("class/", classRouter);
+
+alpha.route("post/", postRouter);
 
 alpha.notFound((c) => {
   c.status(STATUS_CODES.NOT_FOUND);
