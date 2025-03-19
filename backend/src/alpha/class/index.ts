@@ -256,12 +256,12 @@ classRouter.post("attendance/", async (c) => {
       });
     }
 
-    if (jwtPayload.role == "Faculty" && jwtPayload.id !== classObject.inchargeId) {
+    if (jwtPayload.role === "Faculty" && jwtPayload.id !== classObject.inchargeId) {
       c.status(STATUS_CODES.FORBIDDEN);
       return c.json({
         err: "Forbidden, user lacks authorization",
       });
-    } else if (jwtPayload.role == "Incharge") {
+    } else if (jwtPayload.role === "Incharge") {
       let isIncharge = false;
       for (let i = 0; i < classObject.ClassMember.length; i++) {
         if (classObject.ClassMember[i].student.id === jwtPayload.id && classObject.ClassMember[i].student.isIncharge) {
@@ -360,12 +360,12 @@ classRouter.get(":classId{[0-9]+}/attendance/:fromDate/", async (c) => {
       });
     }
 
-    if (jwtPayload.role == "Faculty" && jwtPayload.id !== classObject.inchargeId) {
+    if (jwtPayload.role === "Faculty" && jwtPayload.id !== classObject.inchargeId) {
       c.status(STATUS_CODES.FORBIDDEN);
       return c.json({
         err: "Forbidden, user lacks authorization",
       });
-    } else if (jwtPayload.role == "Incharge") {
+    } else if (jwtPayload.role === "Incharge") {
       let isIncharge = false;
       for (let i = 0; i < classObject.ClassMember.length; i++) {
         if (classObject.ClassMember[i].student.id === jwtPayload.id && classObject.ClassMember[i].student.isIncharge) {

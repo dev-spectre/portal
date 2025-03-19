@@ -55,6 +55,15 @@ const schema = {
         isIncharge: z.boolean().optional(),
       })
     ),
+    password: z.object({
+      registerNumber,
+      currentPassword: z.string().trim().min(8),
+      newPassword: passwordSchema,
+    }),
+    signin: z.object({
+      registerNumber,
+      password: passwordSchema,
+    }),
   },
   post: {
     create: z.object({
