@@ -62,7 +62,10 @@ auth.post("signup/", async (c) => {
       });
 
       c.status(STATUS_CODES.CREATED);
-      return c.json(user);
+      return c.json({
+        ...user,
+        username: user.name,
+      });
     } catch (e) {
       c.status(STATUS_CODES.SERVICE_UNVAILABLE);
       return c.json({
@@ -128,7 +131,7 @@ auth.post("signin/", async (c) => {
         expires: expDate,
         sameSite: "strict",
       });
-      c.status(STATUS_CODES.CREATED);
+      c.status(STATUS_CODES.OK);
       return c.json({
         id: user.id,
         username: user.name,

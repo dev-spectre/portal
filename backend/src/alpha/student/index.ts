@@ -94,6 +94,9 @@ studentRouter.get("attendance/", async (c) => {
 });
 
 studentRouter.get("post/", async (c) => {
+  const limit = parseInt(c.req.query("limit") ?? "") || Number.MAX_SAFE_INTEGER;
+  const offset = parseInt(c.req.query("offset") ?? "0");
+
   const { JWT_KEY } = env<{ JWT_KEY: string }>(c);
   const cookie = await getSignedCookie(c, JWT_KEY);
   const studentId = decode(cookie.jwt || "").payload.id as number;
@@ -105,6 +108,13 @@ studentRouter.get("post/", async (c) => {
         PostAccess: {
           select: {
             Post: true,
+          },
+          take: limit,
+          skip: offset,
+          orderBy: {
+            Post: {
+              createdAt: "desc",
+            },
           },
         },
       },
