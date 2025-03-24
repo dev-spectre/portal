@@ -24,6 +24,9 @@ const schema = {
       name: z.string().trim().min(1, "Class name should have at least one character"),
       inchargeId: z.number().int("Incharge id should be a integer"),
     }),
+    delete: z.object({
+      classId: z.number().int(),
+    }),
     addStudent: z.object({
       registerNumber: z.array(registerNumber).min(1),
       classId: z.number().int(),
@@ -33,7 +36,7 @@ const schema = {
         classId: z.number().int(),
         date: z.string().datetime(),
         isPresent: z.boolean(),
-        studentId: z.array(z.number().int()).min(1),
+        studentId: z.array(z.number().int()),
       }),
     },
   },

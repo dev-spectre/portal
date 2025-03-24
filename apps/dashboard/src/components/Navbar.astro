@@ -1,0 +1,24 @@
+---
+export const prerender = true;
+---
+
+<div class="bg-black px-5 py-7 flex justify-between text-white border-b border-b-white/10">
+  <a href="/">
+    <h2 class="font-bold">Attendance Portal</h2>
+  </a>
+  <nav>
+    <ul class="flex gap-7">
+      <li><a href="/">Classes</a></li>
+      <li><a href="/post">Posts</a></li>
+      <li><button class="hover:cursor-pointer" id="signout">Signout</button></li>
+    </ul>
+  </nav>
+</div>
+
+<script type="module">
+  const signoutBtn = document.getElementById("signout");
+  signoutBtn?.addEventListener("click", () => {
+    localStorage.clear();
+    window.location.href = "/sigin";
+  });
+</script>

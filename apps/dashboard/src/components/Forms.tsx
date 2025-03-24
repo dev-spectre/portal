@@ -6,6 +6,8 @@ import { Input } from "./ui/input";
 import { z } from "zod";
 import axios from "axios";
 import { STATUS_CODES, backendUrl } from "@/lib/constants";
+import { useState } from "react";
+import { Card, CardContent } from "./ui/card";
 
 const emailDomain = "adithyatech.com";
 const emailSchema = z
@@ -34,6 +36,12 @@ const schema = {
     email: emailSchema,
     password: passwordSchema,
   }),
+  class: {
+    create: z.object({
+      name: z.string().min(1, "Class name is required"),
+      students: z.string().min(1, "Register number is required"),
+    }),
+  },
 };
 
 export function SignupForm() {
@@ -179,6 +187,7 @@ export function SigninForm() {
                   password: values.password,
                 },
                 {
+                  withCredentials: true,
                   validateStatus: () => true,
                 }
               );
@@ -188,11 +197,10 @@ export function SigninForm() {
                 localStorage.setItem("username", res.data.username);
                 window.location.href = "/";
               } else if (res.status === STATUS_CODES.NOT_FOUND) {
-                console.log("notfound");
                 form.setError("email", {
                   message: "User with this email doesn't exist",
                 });
-              } else if ((res.status === STATUS_CODES.UNAUTHORIZED)) {
+              } else if (res.status === STATUS_CODES.UNAUTHORIZED) {
                 form.setError("password", {
                   message: "Incorrect password",
                 });
@@ -239,6 +247,114 @@ export function SigninForm() {
           signup
         </a>
       </p>
+    </div>
+  );
+}
+
+export default function CreateClassForm() {
+  type FormData = z.infer<typeof schema.class.create>;
+
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: zodResolver(schema.class.create),
+  });
+
+  const onSubmit = async (data: FormData) => {
+    setError(null);
+    setSuccess(null);
+    try {
+      const studentList = data.students.split(",").map((reg) => reg.trim());
+
+      const studentResponse = await axios.post(
+        `${backendUrl}/faculty/student/`,
+        { students: studentList.map((reg) => ({ registerNumber: reg })) },
+        {
+          withCredentials: true,
+          validateStatus: () => true,
+        }
+      );
+
+      if (studentResponse.status == STATUS_CODES.SERVICE_UNVAILABLE) {
+        setError("Couldn't create students, try again later");
+      }
+
+      const inchargeId = parseInt(localStorage.getItem("userId") ?? "");
+      if (Number.isNaN(inchargeId)) {
+        localStorage.clear();
+
+        window.location.href = "/sigin";
+      }
+      const classResponse = await axios.post(
+        `${backendUrl}/class/create/`,
+        { name: data.name, inchargeId },
+        {
+          withCredentials: true,
+          validateStatus: () => true,
+        }
+      );
+
+      if (classResponse.status !== STATUS_CODES.CREATED) {
+        throw new Error("Failed to create class");
+      } else {
+        const classListCache = JSON.parse(localStorage.getItem("classList") ?? "[]");
+        classListCache.push({
+          id: classResponse.data.id,
+          name: classResponse.data.name,
+        });
+        localStorage.setItem("classList", JSON.stringify(classListCache));
+      }
+
+      const classId = classResponse.data.id;
+
+      const addStudentsResponse = await axios.post(
+        `${backendUrl}/class/add/`,
+        { classId, registerNumber: studentList },
+        {
+          withCredentials: true,
+          validateStatus: () => true,
+        }
+      );
+
+      if (addStudentsResponse.status === STATUS_CODES.CREATED) {
+        setSuccess("Class created and students added successfully!");
+      } else if (addStudentsResponse.status === STATUS_CODES.FORBIDDEN) {
+        setError("Invalid input format");
+      } else if (addStudentsResponse.status === STATUS_CODES.SERVICE_UNVAILABLE) {
+        setError("Service unavailable. Try again later.");
+      } else {
+        setError("Something went wrong.");
+      }
+    } catch (err) {
+      setError("Failed to process request.");
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-5 flex justify-center items-center mt-10">
+      <Card className="border bg-black border-white/30 rounded-lg p-4 w-full max-w-md">
+        <CardContent className="py-7">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div>
+              <Input {...register("name")} placeholder="Class Name" className="border border-white/30 text-white" />
+              {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
+            </div>
+            <div>
+              <Input {...register("students")} placeholder="Student Register Numbers (comma separated)" className="border text-whiteI border-white/30 text-white" />
+              {errors.students && <p className="text-red-500 text-sm">{errors.students.message}</p>}
+            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {success && <p className="text-green-500 text-sm">{success}</p>}
+            <Button type="submit" className="w-full">
+              Create Class
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

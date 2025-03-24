@@ -1,0 +1,13 @@
+---
+import Navbar from "@/components/Navbar.astro";
+import CreatePostForm from "@/components/Post";
+import Main from "@/layouts/Main.astro";
+---
+
+<Main>
+  <Navbar />
+  <div class="container mx-auto px-5 mt-10">
+    <h1 class="text-lg font-bold mb-7">Creat Post</h1>
+    <CreatePostForm client:load />
+  </div>
+</Main>

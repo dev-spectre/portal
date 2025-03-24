@@ -89,6 +89,25 @@ postRouter.get("/", async (c) => {
 
   try {
     const post = await primsa.post.findMany({
+      select: {
+        authorId: true,
+        createdAt: true,
+        updatedAt: true,
+        description: true,
+        documentSource: true,
+        id: true,
+        title: true,
+        PostAccess: {
+          select: {
+            class: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
+          },
+        },
+      },
       where: {
         authorId,
       },

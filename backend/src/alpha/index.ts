@@ -8,7 +8,13 @@ import studentRouter from "./student/index.js";
 
 const alpha = new Hono();
 
-alpha.use("*", cors());
+alpha.use(
+  "*",
+  cors({
+    credentials: true,
+    origin: (origin) => origin,
+  })
+);
 
 alpha.use(async (c, next) => {
   const methodsWithJsonBody = ["POST", "PUT"];

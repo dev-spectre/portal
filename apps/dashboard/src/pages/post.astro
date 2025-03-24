@@ -1,7 +1,7 @@
 ---
 import { Button } from "@/components/ui/button";
 import Main from "../layouts/Main.astro";
-import { ClassCardContainer } from "@/components/ClassCard";
+import { PostList } from "@/components/Post";
 import Navbar from "@/components/Navbar.astro";
 
 export const prerender = true;
@@ -11,11 +11,11 @@ export const prerender = true;
   <Navbar />
   <div class="container mx-auto px-5 mt-10">
     <div class="flex justify-between items-center mb-7">
-      <h1 class="text-xl font-bold">Classes</h1>
-      <a href="/create/class">
-        <Button>Create class</Button>
+      <h1 class="text-xl font-bold">Post</h1>
+      <a href="/create/post">
+        <Button>Create Post</Button>
       </a>
     </div>
-    <ClassCardContainer client:load />
+    <PostList client:load />
   </div>
 </Main>

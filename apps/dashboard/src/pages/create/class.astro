@@ -1,0 +1,13 @@
+---
+import CreateClassForm from "@/components/Forms";
+import Navbar from "@/components/Navbar.astro";
+import Main from "@/layouts/Main.astro";
+
+export const prerender = true;
+---
+
+<Main>
+  <Navbar />
+  <h1 class="text-lg mt-10 font-bold container mx-auto px-5">Create Class</h1>
+  <CreateClassForm client:load />
+</Main>

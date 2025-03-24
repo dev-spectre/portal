@@ -15,7 +15,15 @@ classRouter.use("*", verifyAuthToken);
 classRouter.get("/", async (c) => {
   const { JWT_KEY } = env<{ JWT_KEY: string }>(c);
   const cookie = await getSignedCookie(c, JWT_KEY);
-  const facultyId = decode(cookie.jwt || "").payload.id as number;
+  const jwtPayload = decode(cookie.jwt || "").payload;
+  const facultyId = jwtPayload.id as number;
+
+  if (jwtPayload.role !== "Faculty") {
+    c.status(STATUS_CODES.FORBIDDEN);
+    return c.json({
+      err: "Forbidden, user lacks authorization",
+    });
+  }
 
   try {
     const data = await prisma.class.findMany({
@@ -31,6 +39,39 @@ classRouter.get("/", async (c) => {
     c.status(STATUS_CODES.OK);
     return c.json({
       data,
+    });
+  } catch (e) {
+    c.status(STATUS_CODES.SERVICE_UNVAILABLE);
+    return c.json({
+      err: "Couldn't connect to database",
+    });
+  }
+});
+
+classRouter.delete("/:classId{[0-9]+}", async (c) => {
+  const { classId } = c.req.param();
+
+  const { JWT_KEY } = env<{ JWT_KEY: string }>(c);
+  const cookie = await getSignedCookie(c, JWT_KEY);
+  const jwtPayload = decode(cookie.jwt || "").payload;
+  if (jwtPayload.role !== "Faculty") {
+    c.status(STATUS_CODES.FORBIDDEN);
+    return c.json({
+      err: "Forbidden, user lacks authorization",
+    });
+  }
+
+  try {
+    const classObject = await prisma.class.delete({
+      where: {
+        id: parseInt(classId),
+        inchargeId: jwtPayload.id as number,
+      },
+    });
+
+    c.status(STATUS_CODES.OK);
+    return c.json({
+      ...classObject,
     });
   } catch (e) {
     c.status(STATUS_CODES.SERVICE_UNVAILABLE);
@@ -278,11 +319,8 @@ classRouter.post("attendance/", async (c) => {
       }
     }
 
-    const date = new Date(parsed.data.date);
-    date.setHours(0);
-    date.setMinutes(0);
-    date.setSeconds(0);
-    date.setMilliseconds(0);
+    //* remove time from ISO date string
+    const date = new Date(parsed.data.date.split("T")[0]);
     const attendanceMode = await prisma.attendanceMode.create({
       data: {
         isPresent: parsed.data.isPresent,
@@ -294,8 +332,13 @@ classRouter.post("attendance/", async (c) => {
       },
     });
 
+    const students = parsed.data.studentId.filter((studentId) => {
+      const student = classObject.ClassMember.find((students) => students.student.id === studentId);
+      return !!student;
+    });
+
     const attendance = await prisma.attendance.createMany({
-      data: parsed.data.studentId.map((studentId) => {
+      data: students.map((studentId) => {
         return {
           studentId,
           attendanceModeId: attendanceMode.id,
@@ -305,6 +348,7 @@ classRouter.post("attendance/", async (c) => {
 
     c.status(STATUS_CODES.CREATED);
     return c.json({
+      attendanceModeId: attendanceMode.id,
       mode: parsed.data.isPresent ? "Present" : "Absent",
       count: attendance.count,
     });
@@ -317,8 +361,9 @@ classRouter.post("attendance/", async (c) => {
   }
 });
 
-classRouter.get(":classId{[0-9]+}/attendance/:fromDate/", async (c) => {
-  const { fromDate, classId } = c.req.param();
+classRouter.get(":classId{[0-9]+}/attendance/", async (c) => {
+  const { classId } = c.req.param();
+  const fromDate = c.req.query("from") ?? "2000-01-01";
   const date = new Date(fromDate);
 
   const { JWT_KEY } = env<{ JWT_KEY: string }>(c);
