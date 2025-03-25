@@ -195,7 +195,7 @@ classRouter.get(":classId{[0-9]+}/student/", async (c) => {
   const { JWT_KEY } = env<{ JWT_KEY: string }>(c);
   const cookie = await getSignedCookie(c, JWT_KEY);
   const jwtPayload = decode(cookie.jwt || "").payload;
-  if (jwtPayload.role != "Faculty") {
+  if (jwtPayload.role !== "Faculty" && jwtPayload.role !== "Incharge") {
     c.status(STATUS_CODES.FORBIDDEN);
     return c.json({
       err: "Forbidden, user lacks authorization",
@@ -206,7 +206,20 @@ classRouter.get(":classId{[0-9]+}/student/", async (c) => {
     const data = await prisma.class.findUnique({
       where: {
         id: parseInt(classId),
-        inchargeId: jwtPayload.id as number,
+        OR: [
+          {
+            inchargeId: jwtPayload.id as number,
+          },
+          {
+            ClassMember: {
+              some: {
+                student: {
+                  id: jwtPayload.id as number,
+                },
+              },
+            },
+          },
+        ],
       },
       select: {
         id: true,

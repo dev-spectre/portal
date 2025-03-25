@@ -1,11 +1,15 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import { ClassCardContainer } from "@/components/ClassCard";
+import Main from "../layouts/Main.astro";
+import Navbar from "@/components/Navbar.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+export const prerender = true;
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<Main>
+  <Navbar />
+  <div class="container mx-auto px-5 mt-10">
+    <h1 class="text-xl font-bold mb-5">Classes</h1>
+    <ClassCardContainer client:load />
+  </div>
+</Main>

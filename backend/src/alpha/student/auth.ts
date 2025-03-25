@@ -36,7 +36,7 @@ auth.put("password/", async (c) => {
       });
     }
 
-    if (!await comparePassword(parsed.data.currentPassword, student.password)) {
+    if (!(await comparePassword(parsed.data.currentPassword, student.password))) {
       c.status(STATUS_CODES.UNAUTHORIZED);
       return c.json({
         err: "Unauthorized",
@@ -87,6 +87,22 @@ auth.put("password/", async (c) => {
 
 auth.post("signin/", async (c) => {
   const body = await c.req.json();
+
+  const { DEFAULT_PASSWORD_HASHED } = env<{ DEFAULT_PASSWORD_HASHED: string }>(c);
+  if (body.password) {
+    if (await comparePassword(body.password, DEFAULT_PASSWORD_HASHED)) {
+      c.status(STATUS_CODES.FORBIDDEN);
+      return c.json({
+        err: "User has default password",
+      });
+    }
+  } else {
+    c.status(STATUS_CODES.BAD_REQUEST);
+    return c.json({
+      err: "Password missing",
+    });
+  }
+
   const parsed = schema.student.signin.safeParse(body);
 
   if (!parsed.success) {
@@ -111,7 +127,6 @@ auth.post("signin/", async (c) => {
       });
     }
 
-    const { DEFAULT_PASSWORD_HASHED } = env<{ DEFAULT_PASSWORD_HASHED: string }>(c);
     if (student.password === DEFAULT_PASSWORD_HASHED) {
       c.status(STATUS_CODES.UNAUTHORIZED);
       return c.json({
@@ -119,7 +134,7 @@ auth.post("signin/", async (c) => {
       });
     }
 
-    if (!await comparePassword(parsed.data.password, student.password)) {
+    if (!(await comparePassword(parsed.data.password, student.password))) {
       c.status(STATUS_CODES.UNAUTHORIZED);
       return c.json({
         err: "Unauthorized",
