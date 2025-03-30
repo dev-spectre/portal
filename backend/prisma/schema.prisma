@@ -29,6 +29,7 @@ model Student {
   isIncharge     Boolean       @default(false)
   Attendance     Attendance[]
   ClassMember    ClassMember[]
+  Mark           Mark[]
 }
 
 model Class {
@@ -39,6 +40,7 @@ model Class {
   PostAccess     PostAccess[]
   ClassMember    ClassMember[]
   AttendanceMode AttendanceMode[]
+  Mark           Mark[]
 }
 
 model ClassMember {
@@ -88,4 +90,21 @@ model PostAccess {
   postId  Int
   class   Class @relation(fields: [classId], references: [id], onDelete: Cascade)
   classId Int
+}
+
+model Mark {
+  id             Int     @id @default(autoincrement())
+  Class          Class   @relation(fields: [classId], references: [id], onDelete: Cascade)
+  classId        Int
+  Student        Student @relation(fields: [registerNumber], references: [registerNumber], onDelete: Cascade)
+  registerNumber String
+  exam           Exam
+  mark           Float
+
+  @@unique([classId, registerNumber, exam])
+}
+
+enum Exam {
+  IA1
+  IA2
 }

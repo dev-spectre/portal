@@ -5,6 +5,7 @@ import classRouter from "./class/index.js";
 import { cors } from "hono/cors";
 import postRouter from "./post/index.js";
 import studentRouter from "./student/index.js";
+import markRouter from "./mark/index.js";
 
 const alpha = new Hono();
 
@@ -39,6 +40,8 @@ alpha.route("class/", classRouter);
 alpha.route("post/", postRouter);
 
 alpha.route("student/", studentRouter);
+
+alpha.route("mark/", markRouter);
 
 alpha.notFound((c) => {
   c.status(STATUS_CODES.NOT_FOUND);

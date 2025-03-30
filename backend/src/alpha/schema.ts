@@ -17,6 +17,8 @@ const passwordSchema = z
 
 const registerNumber = z.string().trim().min(1, "Register number shouldn't be empty");
 
+const mark = z.number().positive("Marks must be positive").max(100, "Marks can't exceed 100");
+
 const schema = {
   password: passwordSchema,
   class: {
@@ -82,6 +84,27 @@ const schema = {
       description: z.string().trim().optional().nullable(),
       documentSource: z.string().trim().url("Document source must be a URL").optional().nullable(),
       classId: z.array(z.number().int()).optional(),
+    }),
+  },
+  mark: {
+    add: z.object({
+      classId: z.number().int(),
+      exam: z
+        .string()
+        .trim()
+        .regex(/IA1|IA2/, "Exam must be IA1 or IA2"),
+      marks: z
+        .array(
+          z.object({
+            registerNumber,
+            mark,
+          })
+        )
+        .min(1, "At least one record should be present"),
+    }),
+    update: z.object({
+      markId: z.number().positive(),
+      mark,
     }),
   },
 };
