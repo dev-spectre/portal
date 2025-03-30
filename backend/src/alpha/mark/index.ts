@@ -61,6 +61,7 @@ markRouter.post("/", async (c) => {
           mark: record.mark,
         };
       }),
+      skipDuplicates: true,
     });
 
     c.status(STATUS_CODES.CREATED);
