@@ -73,7 +73,7 @@ export function ClassInfo({ classId }: { classId: number }) {
   }, []);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-5">
       <div className="border border-white/30 rounded-lg px-5 py-7">
         <h1 className="text-lg font-bold">{classObject?.name}</h1>
         <div className="flex mt-5 justify-between flex-wrap items-center">
@@ -93,6 +93,9 @@ export function ClassInfo({ classId }: { classId: number }) {
           </a>
         </div>
       </div>
+      <a href={`/class/${classId}/result`} className="block">
+        <Button className="w-full">Manage results</Button>
+      </a>
       <TakeAttendance {...{ classId, studentList, setAttendance, attendance }} />
     </div>
   );
