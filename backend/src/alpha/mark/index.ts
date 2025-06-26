@@ -157,6 +157,11 @@ markRouter.put("/", async (c) => {
       },
     });
 
+    const marks = await prisma.mark.updateMany({
+      data: [
+      ],
+    });
+
     c.status(STATUS_CODES.OK);
     return c.json({
       ...mark,

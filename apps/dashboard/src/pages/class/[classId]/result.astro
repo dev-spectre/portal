@@ -1,0 +1,20 @@
+---
+import Main from "../../../layouts/Main.astro";
+import Navbar from "@/components/Navbar.astro";
+import { MarksTable } from "@/components/Result";
+
+export const prerender = false;
+
+const { classId } = Astro.params;
+
+if (Number.isNaN(parseInt(classId ?? ""))) {
+  return Astro.redirect("/404");
+}
+---
+
+<Main>
+  <Navbar />
+  <div class="container mx-auto px-5">
+    <MarksTable classId={parseInt(classId ?? "")} client:load />
+  </div>
+</Main>
